@@ -1,6 +1,7 @@
 package com.mmontaldo.budget_tracker.controller;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +25,20 @@ public class GastoController {
     private final GastoService gastoService;
 
     @GetMapping("/")
-    public Page<GastoDto> getGastos(
+    public Page<GastoDto> getGastosPorPagina(
             @RequestParam(required = false) LocalDate fechaDesde,
             @RequestParam(required = false) LocalDate fechaHasta,
             Pageable pageable
     ) {
         return gastoService.getGastos(fechaDesde, fechaHasta, pageable);
+    }
+
+    @GetMapping("/por-categoria")
+    public Map<String, Double> getTotalesPorCategoria(
+            @RequestParam(required = false) LocalDate fechaDesde,
+            @RequestParam(required = false) LocalDate fechaHasta
+    ) {
+        return gastoService.getTotalesPorCategoria(fechaDesde, fechaHasta);
     }
 
     @PostMapping("/crear")
