@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mmontaldo.budget_tracker.model.dto.GastoDto;
-import com.mmontaldo.budget_tracker.service.GastoService;
+import com.mmontaldo.budget_tracker.service.impl.GastoServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/gastos")
 public class GastoController {
 
-    private final GastoService gastoService;
+    private final GastoServiceImpl gastoService;
 
     @GetMapping("/")
     public Page<GastoDto> getGastosPorPagina(
@@ -35,8 +35,8 @@ public class GastoController {
 
     @GetMapping("/por-categoria")
     public Map<String, Double> getTotalesPorCategoria(
-            @RequestParam(required = false) LocalDate fechaDesde,
-            @RequestParam(required = false) LocalDate fechaHasta
+            @RequestParam(required = true) LocalDate fechaDesde,
+            @RequestParam(required = true) LocalDate fechaHasta
     ) {
         return gastoService.getTotalesPorCategoria(fechaDesde, fechaHasta);
     }

@@ -34,11 +34,32 @@ CREATE TABLE gastos (
         REFERENCES categorias(id)
 );
 
+CREATE TABLE usuarios (
+    id                  BIGSERIAL PRIMARY KEY,
+
+    nombre              VARCHAR(255) NOT NULL,      -- nombre visible
+    usuario             VARCHAR(100) NOT NULL,      -- username / login
+    imagen_url          VARCHAR(500),               -- foto de perfil
+
+    activo              BOOLEAN NOT NULL DEFAULT TRUE,
+
+    aud_ts_ins          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    aud_ts_ins_user     VARCHAR(255) NOT NULL,
+    aud_ts_upd          TIMESTAMPTZ,
+    aud_ts_upd_user     VARCHAR(255),
+
+    CONSTRAINT uq_usuarios_usuario
+        UNIQUE (usuario)
+);
+
 -- Indices
 CREATE INDEX idx_gastos_fecha ON gastos(fecha);
 CREATE INDEX idx_gastos_categoria ON gastos(categoria_id);
 CREATE INDEX idx_gastos_activo ON gastos(activo);
 CREATE INDEX idx_categorias_activo ON categorias(activo);
+
+CREATE INDEX idx_usuarios_usuario ON usuarios(usuario);
+CREATE INDEX idx_usuarios_activo ON usuarios(activo);
 
 -- Restricciones
 ALTER TABLE gastos
@@ -64,3 +85,23 @@ CREATE TRIGGER trg_categorias_auditoria
 BEFORE UPDATE ON categorias
 FOR EACH ROW
 EXECUTE FUNCTION set_auditoria_update();
+
+CREATE TRIGGER trg_usuarios_auditoria
+BEFORE UPDATE ON usuarios
+FOR EACH ROW
+EXECUTE FUNCTION set_auditoria_update();
+
+-- Usuario de ejemplo
+INSERT INTO usuarios (
+    nombre,
+    usuario,
+    imagen_url,
+    activo,
+    aud_ts_ins_user
+) VALUES (
+    'Mariela Montaldo',
+    'mmontaldo',
+    '/assets/images/usuarios/mmontaldo.png',
+    TRUE,
+    'system'
+);

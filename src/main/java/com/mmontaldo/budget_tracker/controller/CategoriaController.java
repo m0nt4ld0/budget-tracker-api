@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
-import com.mmontaldo.budget_tracker.service.CategoriaService;
+import com.mmontaldo.budget_tracker.service.impl.CategoriaServiceImpl;
 
 @RestController
 @RequestMapping("/api/categorias/")
 @RequiredArgsConstructor
 public class CategoriaController {
     
-    private final CategoriaService categoriaService;
+    private final CategoriaServiceImpl categoriaService;
     
     @GetMapping
     public List<CategoriaDto> getCategorias() {

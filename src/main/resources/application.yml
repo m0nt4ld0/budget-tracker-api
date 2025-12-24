@@ -3,3 +3,7 @@ spring:
     name: budget-tracker
   profiles:
     active: dev
+# server:
+#   port: 8443
+#   ssl:
+#     enabled: true

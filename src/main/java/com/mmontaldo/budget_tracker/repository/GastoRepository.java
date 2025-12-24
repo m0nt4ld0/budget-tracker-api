@@ -3,12 +3,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.mmontaldo.budget_tracker.entity.CategoriaEntity;
 import com.mmontaldo.budget_tracker.entity.GastoEntity;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface GastoRepository extends JpaRepository<GastoEntity, Long> {
 
