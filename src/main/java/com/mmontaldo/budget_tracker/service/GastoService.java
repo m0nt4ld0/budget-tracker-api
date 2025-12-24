@@ -2,6 +2,10 @@ package com.mmontaldo.budget_tracker.service;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.math.BigDecimal;
 
 import org.springframework.data.domain.Page;
@@ -99,6 +103,20 @@ public class GastoService {
                                         .build())
                                 .build()
                         );
+        }
+
+        public Map<String, Double> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta) {
+            Map<String, Double> totalesPorCategoria = new HashMap<>();
+
+            for (CategoriaEntity categoria : categoriaRepository.findAll()) {
+                Double total = gastoRepository.findByFechaBetween(fechaDesde, fechaHasta)
+                        .stream()
+                        .filter(gasto -> gasto.getCategoria().getId().equals(categoria.getId()))
+                        .mapToDouble(gasto -> gasto.getImporte().doubleValue())
+                        .sum();
+                totalesPorCategoria.put(categoria.getCategoria(), total);
+            }
+            return totalesPorCategoria;
         }
 
 }
