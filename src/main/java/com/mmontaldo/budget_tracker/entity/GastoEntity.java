@@ -1,7 +1,5 @@
 package com.mmontaldo.budget_tracker.entity;
 
-import jakarta.persistence.Entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 

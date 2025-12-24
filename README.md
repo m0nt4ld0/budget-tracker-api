@@ -136,9 +136,8 @@ Actualmente se cuenta con la dependencia `spring-boot-starter-test`. Ejecuta tod
 
 ## Próximos pasos
 1. Autenticación y multiusuario.
-2. Reportes agregados por período/categoría.
-3. Exportaciones CSV/Excel.
-4. Cobertura de pruebas unitarias y de integración.
+2. Exportar reportes a CSV/Excel.
+3. Cobertura de pruebas unitarias y de integración.
 
 ## Licencia
 Distribuido bajo la licencia [MIT](./LICENSE).
