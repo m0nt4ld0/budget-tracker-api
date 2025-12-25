@@ -30,6 +30,9 @@ public class CategoriaEntity {
     @OneToMany(mappedBy = "categoriaPadre")
     private List<CategoriaEntity> subcategorias;
 
+    @Column(nullable = true)
+    private String icono;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean activo = true;
