@@ -11,7 +11,7 @@ import com.mmontaldo.budget_tracker.service.JwtService;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/auth/")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class LoginController {
 

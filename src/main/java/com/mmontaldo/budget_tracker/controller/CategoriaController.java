@@ -16,7 +16,7 @@ import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.service.impl.CategoriaServiceImpl;
 
 @RestController
-@RequestMapping("/api/categorias/")
+@RequestMapping("/api/categorias")
 @RequiredArgsConstructor
 public class CategoriaController {
     
