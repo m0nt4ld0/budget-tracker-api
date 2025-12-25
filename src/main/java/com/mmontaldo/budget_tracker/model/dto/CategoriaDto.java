@@ -15,5 +15,6 @@ public class CategoriaDto {
 
     private Long id;
     private String categoria;
+    private String icono;
     private Boolean activo;
 }

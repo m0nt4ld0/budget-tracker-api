@@ -15,6 +15,21 @@ CREATE TABLE categorias (
         REFERENCES categorias(id)
 );
 
+ALTER TABLE categorias
+ADD COLUMN icono VARCHAR(50);
+
+UPDATE categorias SET icono = 'shopping-cart' WHERE categoria = 'Alimentación';
+UPDATE categorias SET icono = 'shopping-bag' WHERE categoria = 'Moda y accesorios';
+UPDATE categorias SET icono = 'film' WHERE categoria = 'Ocio';
+UPDATE categorias SET icono = 'map-pin' WHERE categoria = 'Salidas';
+UPDATE categorias SET icono = 'truck' WHERE categoria = 'Auto';
+UPDATE categorias SET icono = 'briefcase' WHERE categoria = 'Oficina';
+UPDATE categorias SET icono = 'home' WHERE categoria = 'Casa';
+UPDATE categorias SET icono = 'building-office-2' WHERE categoria = 'Casacuberta';
+UPDATE categorias SET icono = 'wrench-screwdriver' WHERE categoria = 'Servicios';
+UPDATE categorias SET icono = 'paper-airplane' WHERE categoria = 'Delivery';
+UPDATE categorias SET icono = 'globe-americas' WHERE categoria = 'Viajes';
+
 CREATE TABLE gastos (
     id                  BIGSERIAL PRIMARY KEY,
     fecha               DATE NOT NULL,

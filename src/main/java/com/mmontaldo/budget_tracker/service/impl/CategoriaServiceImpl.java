@@ -27,6 +27,7 @@ public class CategoriaServiceImpl implements CategoriaService {
                 .map(entity -> CategoriaDto.builder()
                         .id(entity.getId())
                         .categoria(entity.getCategoria())
+                        .icono(entity.getIcono())
                         .build())
                 .toList();
     }
@@ -40,6 +41,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         CategoriaEntity entity = CategoriaEntity.builder()
                 .categoria(dto.getCategoria())
+                .icono(dto.getIcono())
                 .activo(true)
                 .audTsIns(OffsetDateTime.now())
                 .audTsInsUser(auditUser)
@@ -49,6 +51,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         return CategoriaDto.builder()
             .id(guardada.getId())
             .categoria(guardada.getCategoria())
+            .icono(guardada.getIcono())
             .build();
     }
 }

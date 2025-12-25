@@ -17,6 +17,7 @@ public class CorsConfig {
                         .allowedOrigins("http://localhost:5173", "http://localhost:8080")
                         .allowedMethods("GET", "POST", "PUT", "OPTIONS")
                         .allowedHeaders("*")
+                        .exposedHeaders("Authorization")
                         .allowCredentials(true);
             }
         };
