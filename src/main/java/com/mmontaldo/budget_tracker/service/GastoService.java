@@ -1,5 +1,6 @@
 package com.mmontaldo.budget_tracker.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -11,5 +12,11 @@ import com.mmontaldo.budget_tracker.model.dto.GastoDto;
 public interface GastoService {
     public GastoDto crearGasto(GastoDto gastoDto);
     public Page<GastoDto> getGastos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable);
-    public Map<String, Double> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta);
+    public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta);
+    public Page<GastoDto> getGastosFiltradosPorPagina(
+                LocalDate fechaDesde,
+                LocalDate fechaHasta,
+                Long categoriaId,
+                Pageable pageable
+        ) ;
 }

@@ -71,9 +71,9 @@ El archivo [`db.sql`](./db.sql) define:
 ## Endpoints principales
 
 ### Categorías
-| Método | Ruta                   | Descripción                     |
-|--------|-----------------------|---------------------------------|
-| GET    | `/api/categorias/`    | Lista categorías activas.       |
+| Método | Ruta                    | Descripción                     |
+|--------|-------------------------|---------------------------------|
+| GET    | `/api/categorias/`      | Lista categorías activas.       |
 | POST   | `/api/categorias/crear` | Crea una nueva categoría.      |
 
 **Solicitud POST ejemplo**

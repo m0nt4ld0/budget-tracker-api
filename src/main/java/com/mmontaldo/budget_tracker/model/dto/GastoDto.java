@@ -1,5 +1,6 @@
 package com.mmontaldo.budget_tracker.model.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.Builder;
@@ -16,5 +17,5 @@ public class GastoDto {
     private LocalDate fecha;
     private CategoriaDto categoria;
     private String concepto;
-    private Double importe;
+    private BigDecimal importe;
 }

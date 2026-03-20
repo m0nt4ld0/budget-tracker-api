@@ -17,4 +17,13 @@ public interface GastoRepository extends JpaRepository<GastoEntity, Long> {
     Page<GastoEntity> findByCategoriaId(Long categoriaId, Pageable pageable);
 
     List<GastoEntity> findByFechaBetween(LocalDate fechaDesde, LocalDate fechaHasta);
+
+    Page<GastoEntity> findByFechaBetweenAndCategoria_Categoria(
+        LocalDate fechaDesde,
+        LocalDate fechaHasta,
+        Long categoriaId,
+        Pageable pageable
+    );
+
+
 }

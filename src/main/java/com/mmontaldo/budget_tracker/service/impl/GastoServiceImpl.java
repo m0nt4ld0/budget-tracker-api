@@ -42,7 +42,7 @@ public class GastoServiceImpl implements GastoService {
                 if (gastoDto.getFecha().isAfter(LocalDate.now())) {
                         throw new GastoFechaFuturaException("No se puede crear un gasto con fecha futura");
                 }
-                if (gastoDto.getImporte() < 0) {
+                if (gastoDto.getImporte().compareTo(BigDecimal.ZERO) < 0) {
                         throw new GastoImporteNegativoException("No se puede crear un gasto con importe negativo");
                 }
                 if (gastoDto.getCategoria() == null || gastoDto.getCategoria().getId() == null) {
@@ -57,7 +57,7 @@ public class GastoServiceImpl implements GastoService {
                 GastoEntity entity = GastoEntity.builder()
                                 .fecha(gastoDto.getFecha())
                                 .concepto(gastoDto.getConcepto())
-                                .importe(BigDecimal.valueOf(gastoDto.getImporte()))
+                                .importe(gastoDto.getImporte())
                                 .categoria(categoria)
                                 .activo(true)
                                 .audTsIns(OffsetDateTime.now())
@@ -70,7 +70,7 @@ public class GastoServiceImpl implements GastoService {
                                         .id(guardado.getId())
                                         .fecha(guardado.getFecha())
                                         .concepto(guardado.getConcepto())
-                                        .importe(guardado.getImporte().doubleValue())
+                                        .importe(guardado.getImporte())
                                         .categoria(CategoriaDto.builder()
                                                         .id(categoria.getId())
                                                         .categoria(categoria.getCategoria())
@@ -95,7 +95,7 @@ public class GastoServiceImpl implements GastoService {
                                 .id(entity.getId())
                                 .fecha(entity.getFecha())
                                 .concepto(entity.getConcepto())
-                                .importe(entity.getImporte().doubleValue())
+                                .importe(entity.getImporte())
                                 .categoria(CategoriaDto.builder()
                                         .id(entity.getCategoria().getId())
                                         .categoria(entity.getCategoria().getCategoria())
@@ -104,18 +104,42 @@ public class GastoServiceImpl implements GastoService {
                         );
         }
 
-        public Map<String, Double> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta) {
-            Map<String, Double> totalesPorCategoria = new HashMap<>();
+        public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta) {
+            Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
 
             for (CategoriaEntity categoria : categoriaRepository.findAll()) {
-                Double total = gastoRepository.findByFechaBetween(fechaDesde, fechaHasta)
+                BigDecimal total = gastoRepository.findByFechaBetween(fechaDesde, fechaHasta)
                         .stream()
                         .filter(gasto -> gasto.getCategoria().getId().equals(categoria.getId()))
-                        .mapToDouble(gasto -> gasto.getImporte().doubleValue())
-                        .sum();
+                        .map(gasto -> gasto.getImporte())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
                 totalesPorCategoria.put(categoria.getCategoria(), total);
             }
             return totalesPorCategoria;
+        }
+
+        public Page<GastoDto> getGastosFiltradosPorPagina(
+                LocalDate fechaDesde,
+                LocalDate fechaHasta,
+                Long categoriaId,
+                Pageable pageable
+        ) {
+                Page<GastoEntity> gastos =
+                        gastoRepository.findByFechaBetweenAndCategoria_Categoria(
+                        fechaDesde, fechaHasta, categoriaId, pageable
+                        );
+
+                return gastos.map(entity -> GastoDto.builder()
+                        .id(entity.getId())
+                        .fecha(entity.getFecha())
+                        .concepto(entity.getConcepto())
+                        .importe(entity.getImporte())
+                        .categoria(CategoriaDto.builder()
+                        .id(entity.getCategoria().getId())
+                        .categoria(entity.getCategoria().getCategoria())
+                        .build())
+                        .build()
+                );
         }
 
 }
