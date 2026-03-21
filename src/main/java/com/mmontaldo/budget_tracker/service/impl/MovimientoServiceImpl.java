@@ -3,6 +3,7 @@ package com.mmontaldo.budget_tracker.service.impl;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.math.BigDecimal;
 
@@ -114,7 +115,10 @@ public class MovimientoServiceImpl implements MovimientoService {
     public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta, TipoMovimiento tipoMovimiento) {
         Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
 
-        for (CategoriaEntity categoria : categoriaRepository.findAll()) {
+        // ✅ Solo categorías del tipo correcto
+        List<CategoriaEntity> categorias = categoriaRepository.findByTipoMovimiento(tipoMovimiento);
+
+        for (CategoriaEntity categoria : categorias) {
             BigDecimal total = movimientoRepository
                 .findByTipoMovimientoAndFechaBetween(tipoMovimiento, fechaDesde, fechaHasta)
                 .stream()
