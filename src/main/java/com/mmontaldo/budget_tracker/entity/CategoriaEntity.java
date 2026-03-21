@@ -1,11 +1,12 @@
 package com.mmontaldo.budget_tracker.entity;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 
 @Entity
 @Table(name = "categorias")
@@ -29,6 +30,10 @@ public class CategoriaEntity {
 
     @OneToMany(mappedBy = "categoriaPadre")
     private List<CategoriaEntity> subcategorias;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoMovimiento tipoMovimiento;
 
     @Column(nullable = true)
     private String icono;

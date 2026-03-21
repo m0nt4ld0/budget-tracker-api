@@ -23,13 +23,13 @@ public class CategoriaController {
     private final CategoriaServiceImpl categoriaService;
     
     @GetMapping
-    public List<CategoriaDto> getCategorias() {
-        return categoriaService.getCategorias();
+    public List<CategoriaDto> getCategoriasGastos() {
+        return categoriaService.getCategoriasGastos();
     }
 
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoriaDto crearCategoria(@RequestBody CategoriaDto dto) {
-        return categoriaService.crearCategoria(dto);
+    public CategoriaDto crearCategoriaGasto(@RequestBody CategoriaDto dto) {
+        return categoriaService.crearCategoriaGasto(dto);
     }
 }

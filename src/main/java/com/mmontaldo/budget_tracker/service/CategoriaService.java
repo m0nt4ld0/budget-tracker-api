@@ -8,5 +8,11 @@ public interface CategoriaService {
 
     public List<CategoriaDto> getCategorias();
 
-    public CategoriaDto crearCategoria(CategoriaDto dto);
+    public List<CategoriaDto> getCategoriasIngresos();
+
+    public List<CategoriaDto> getCategoriasGastos();
+
+    public CategoriaDto crearCategoriaIngreso(CategoriaDto dto);
+    
+    public CategoriaDto crearCategoriaGasto(CategoriaDto dto);
 }

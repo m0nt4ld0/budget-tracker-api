@@ -12,9 +12,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CategoriaDto {
-
     private Long id;
     private String categoria;
     private String icono;
     private Boolean activo;
+    private String tipoMovimiento;
 }

@@ -40,7 +40,7 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     public MovimientoDto crearMovimiento(MovimientoDto movimientoDto) {
 
-        movimientoDto.setTipoMovimiento(TipoMovimiento.GASTO.name());
+        movimientoDto.setTipoMovimiento(TipoMovimiento.EGRESO.name());
 
         if (movimientoDto.getFecha().isAfter(LocalDate.now())) {
             throw new GastoFechaFuturaException("No se puede crear un movimiento con fecha futura");
@@ -62,7 +62,7 @@ public class MovimientoServiceImpl implements MovimientoService {
             .concepto(movimientoDto.getConcepto())
             .importe(movimientoDto.getImporte())
             .categoria(categoria)
-            .tipoMovimiento(TipoMovimiento.GASTO)
+            .tipoMovimiento(TipoMovimiento.EGRESO)
             .activo(true)
             .audTsIns(OffsetDateTime.now())
             .audTsInsUser(auditUser)
