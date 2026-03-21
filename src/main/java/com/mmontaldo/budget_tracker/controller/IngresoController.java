@@ -9,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,9 +53,4 @@ public class IngresoController {
         return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta, TipoMovimiento.INGRESO);
     }
 
-    @PostMapping("/crear")
-    public MovimientoDto crearGasto(@RequestBody MovimientoDto gastoDto) {
-        gastoDto.setTipoMovimiento(TipoMovimiento.INGRESO.name());
-        return movimientoService.crearMovimiento(gastoDto);
-    }
 }
