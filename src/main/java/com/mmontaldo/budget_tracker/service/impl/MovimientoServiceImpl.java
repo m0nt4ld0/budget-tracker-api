@@ -26,6 +26,7 @@ import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
 import com.mmontaldo.budget_tracker.repository.MovimientoRepository;
 import com.mmontaldo.budget_tracker.service.MovimientoService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,6 +39,7 @@ public class MovimientoServiceImpl implements MovimientoService {
     private final CategoriaRepository categoriaRepository;
     private final AuditConfig auditConfig;
 
+    @Transactional
     public MovimientoDto crearMovimiento(MovimientoDto movimientoDto) {
 
         movimientoDto.setTipoMovimiento(TipoMovimiento.EGRESO.name());

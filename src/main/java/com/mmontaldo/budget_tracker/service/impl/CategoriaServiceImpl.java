@@ -12,6 +12,7 @@ import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
 import com.mmontaldo.budget_tracker.service.CategoriaService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -60,6 +61,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
     
     @Override
+    @Transactional
     public CategoriaDto crearCategoriaGasto(CategoriaDto dto) {
 
         dto.setTipoMovimiento(TipoMovimiento.EGRESO.name());
@@ -85,6 +87,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
         
     @Override
+    @Transactional
     public CategoriaDto crearCategoriaIngreso(CategoriaDto dto) {
 
         dto.setTipoMovimiento(TipoMovimiento.INGRESO.name());
