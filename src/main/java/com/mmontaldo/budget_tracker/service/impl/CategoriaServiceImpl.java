@@ -59,6 +59,19 @@ public class CategoriaServiceImpl implements CategoriaService {
                         .build())
                 .toList();
     }
+
+    @Override
+    public List<CategoriaDto> getCategoriasMovimientos() {
+        return categoriaRepository.findByActivoTrue()
+                .stream()
+                .map(entity -> CategoriaDto.builder()
+                        .id(entity.getId())
+                        .categoria(entity.getCategoria())
+                        .tipoMovimiento(entity.getTipoMovimiento().name())
+                        .icono(entity.getIcono())
+                        .build())
+                .toList();
+    }
     
     @Override
     @Transactional

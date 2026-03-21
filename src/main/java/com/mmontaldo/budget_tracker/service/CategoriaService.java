@@ -15,4 +15,6 @@ public interface CategoriaService {
     public CategoriaDto crearCategoriaIngreso(CategoriaDto dto);
     
     public CategoriaDto crearCategoriaGasto(CategoriaDto dto);
+
+    public List<CategoriaDto> getCategoriasMovimientos();
 }

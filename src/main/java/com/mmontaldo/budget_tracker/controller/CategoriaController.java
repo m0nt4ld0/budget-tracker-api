@@ -23,8 +23,8 @@ public class CategoriaController {
     private final CategoriaServiceImpl categoriaService;
     
     @GetMapping
-    public List<CategoriaDto> getCategoriasGastos() {
-        return categoriaService.getCategoriasGastos();
+    public List<CategoriaDto> getCategoriasMovimientos() {
+        return categoriaService.getCategoriasMovimientos();
     }
 
     @PostMapping("/crear")
