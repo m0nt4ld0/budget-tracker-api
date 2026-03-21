@@ -18,4 +18,5 @@ public class MovimientoDto {
     private CategoriaDto categoria;
     private String concepto;
     private BigDecimal importe;
+    private String tipoMovimiento;
 }

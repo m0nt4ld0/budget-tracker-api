@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
 import com.mmontaldo.budget_tracker.service.impl.MovimientoServiceImpl;
 
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/gastos")
-public class MovimientoController {
+public class GastoController {
 
     private final MovimientoServiceImpl movimientoService;
 
@@ -33,7 +34,7 @@ public class MovimientoController {
             @RequestParam(required = false) LocalDate fechaHasta,
             @PageableDefault(sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        return movimientoService.getGastos(fechaDesde, fechaHasta, pageable);
+        return movimientoService.getMovimientos(fechaDesde, fechaHasta, pageable, TipoMovimiento.GASTO);
     }
 
     @GetMapping("/filtro")
@@ -43,7 +44,7 @@ public class MovimientoController {
             @RequestParam(required = false) Long categoriaId,
             @PageableDefault(sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        return movimientoService.getGastosFiltradosPorPagina(fechaDesde, fechaHasta, categoriaId, pageable);
+        return movimientoService.getMovimientosFiltradosPorPagina(fechaDesde, fechaHasta, categoriaId, TipoMovimiento.GASTO, pageable);
     }
 
     @GetMapping("/por-categoria")
@@ -51,12 +52,13 @@ public class MovimientoController {
             @RequestParam(required = true) LocalDate fechaDesde,
             @RequestParam(required = true) LocalDate fechaHasta
     ) {
-        return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta);
+        return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta, TipoMovimiento.GASTO);
     }
 
     @PostMapping("/crear")
     public MovimientoDto crearGasto(@RequestBody MovimientoDto gastoDto) {
-        return movimientoService.crearGasto(gastoDto);
+        gastoDto.setTipoMovimiento(TipoMovimiento.GASTO.name());
+        return movimientoService.crearMovimiento(gastoDto);
     }
 }
 

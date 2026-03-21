@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
+import com.mmontaldo.budget_tracker.model.TipoMovimiento;
+
 @Entity
 @Table(name = "movimientos")
 @Getter
@@ -36,6 +38,10 @@ public class MovimientoEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean activo = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoMovimiento tipoMovimiento;
 
     @Column(name = "aud_ts_ins", nullable = false)
     private OffsetDateTime audTsIns;

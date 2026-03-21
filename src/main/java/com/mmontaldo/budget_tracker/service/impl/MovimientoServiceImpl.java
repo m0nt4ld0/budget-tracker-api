@@ -19,6 +19,7 @@ import com.mmontaldo.budget_tracker.exception.FechaInvalidaException;
 import com.mmontaldo.budget_tracker.exception.GastoFechaFuturaException;
 import com.mmontaldo.budget_tracker.exception.GastoImporteNegativoException;
 import com.mmontaldo.budget_tracker.exception.RequestBodyInvalidException;
+import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
@@ -33,113 +34,118 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MovimientoServiceImpl implements MovimientoService {
 
-        private final MovimientoRepository gastoRepository;
-        private final CategoriaRepository categoriaRepository;
-        private final AuditConfig auditConfig;
+    private final MovimientoRepository movimientoRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final AuditConfig auditConfig;
 
-        public MovimientoDto crearGasto(MovimientoDto gastoDto) {
-                
-                if (gastoDto.getFecha().isAfter(LocalDate.now())) {
-                        throw new GastoFechaFuturaException("No se puede crear un gasto con fecha futura");
-                }
-                if (gastoDto.getImporte().compareTo(BigDecimal.ZERO) < 0) {
-                        throw new GastoImporteNegativoException("No se puede crear un gasto con importe negativo");
-                }
-                if (gastoDto.getCategoria() == null || gastoDto.getCategoria().getId() == null) {
-                        throw new RequestBodyInvalidException("La categoría es obligatoria");
-                }
+    public MovimientoDto crearMovimiento(MovimientoDto movimientoDto) {
 
-                CategoriaEntity categoria = categoriaRepository.findById(gastoDto.getCategoria().getId())
-                                .orElseThrow(() -> new CategoriaNotFoundException("Categoría no encontrada"));
+        movimientoDto.setTipoMovimiento(TipoMovimiento.GASTO.name());
 
-                String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : null;
-
-                MovimientoEntity entity = MovimientoEntity.builder()
-                                .fecha(gastoDto.getFecha())
-                                .concepto(gastoDto.getConcepto())
-                                .importe(gastoDto.getImporte())
-                                .categoria(categoria)
-                                .activo(true)
-                                .audTsIns(OffsetDateTime.now())
-                                .audTsInsUser(auditUser)
-                                .build();
-
-                try {
-                        MovimientoEntity guardado = gastoRepository.save(entity);
-                        return MovimientoDto.builder()
-                                        .id(guardado.getId())
-                                        .fecha(guardado.getFecha())
-                                        .concepto(guardado.getConcepto())
-                                        .importe(guardado.getImporte())
-                                        .categoria(CategoriaDto.builder()
-                                                        .id(categoria.getId())
-                                                        .categoria(categoria.getCategoria())
-                                                        .build())
-                                        .build();
-                } catch (Exception e) {
-                        throw new DatabaseConnectionException("Error al guardar el gasto en la base de datos");
-                }
+        if (movimientoDto.getFecha().isAfter(LocalDate.now())) {
+            throw new GastoFechaFuturaException("No se puede crear un movimiento con fecha futura");
+        }
+        if (movimientoDto.getImporte().compareTo(BigDecimal.ZERO) < 0) {
+            throw new GastoImporteNegativoException("No se puede crear un movimiento con importe negativo");
+        }
+        if (movimientoDto.getCategoria() == null || movimientoDto.getCategoria().getId() == null) {
+            throw new RequestBodyInvalidException("La categoría es obligatoria");
         }
 
-        public Page<MovimientoDto> getGastos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable) {
-                if (fechaDesde == null)
-                        fechaDesde = LocalDate.of(1900, 1, 1);
-                if (fechaHasta == null)
-                        fechaHasta = LocalDate.now();
-                if (fechaDesde.isAfter(fechaHasta)) {
-                        throw new FechaInvalidaException("La fechaDesde no puede ser mayor a la fechaHasta");
-                }
+        CategoriaEntity categoria = categoriaRepository.findById(movimientoDto.getCategoria().getId())
+            .orElseThrow(() -> new CategoriaNotFoundException("Categoría no encontrada"));
 
-                return gastoRepository.findByFechaBetween(fechaDesde, fechaHasta, pageable)
-                        .map(entity -> MovimientoDto.builder()
-                                .id(entity.getId())
-                                .fecha(entity.getFecha())
-                                .concepto(entity.getConcepto())
-                                .importe(entity.getImporte())
-                                .categoria(CategoriaDto.builder()
-                                        .id(entity.getCategoria().getId())
-                                        .categoria(entity.getCategoria().getCategoria())
-                                        .build())
-                                .build()
-                        );
+        String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : null;
+
+        MovimientoEntity entity = MovimientoEntity.builder()
+            .fecha(movimientoDto.getFecha())
+            .concepto(movimientoDto.getConcepto())
+            .importe(movimientoDto.getImporte())
+            .categoria(categoria)
+            .tipoMovimiento(TipoMovimiento.GASTO)
+            .activo(true)
+            .audTsIns(OffsetDateTime.now())
+            .audTsInsUser(auditUser)
+            .build();
+
+        try {
+            MovimientoEntity guardado = movimientoRepository.save(entity);
+            return MovimientoDto.builder()
+                .id(guardado.getId())
+                .fecha(guardado.getFecha())
+                .concepto(guardado.getConcepto())
+                .importe(guardado.getImporte())
+                .categoria(CategoriaDto.builder()
+                    .id(categoria.getId())
+                    .categoria(categoria.getCategoria())
+                    .build())
+                .build();
+        } catch (Exception e) {
+            throw new DatabaseConnectionException("Error al guardar el movimiento en la base de datos");
+        }
+    }
+
+    public Page<MovimientoDto> getMovimientos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable, TipoMovimiento tipoMovimiento) {
+        if (fechaDesde == null)
+            fechaDesde = LocalDate.of(1900, 1, 1);
+        if (fechaHasta == null)
+            fechaHasta = LocalDate.now();
+        if (fechaDesde.isAfter(fechaHasta)) {
+            throw new FechaInvalidaException("La fechaDesde no puede ser mayor a la fechaHasta");
         }
 
-        public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta) {
-            Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
+        return movimientoRepository
+            .findByTipoMovimientoAndFechaBetween(tipoMovimiento, fechaDesde, fechaHasta, pageable)
+            .map(entity -> MovimientoDto.builder()
+                .id(entity.getId())
+                .fecha(entity.getFecha())
+                .concepto(entity.getConcepto())
+                .importe(entity.getImporte())
+                .categoria(CategoriaDto.builder()
+                    .id(entity.getCategoria().getId())
+                    .categoria(entity.getCategoria().getCategoria())
+                    .build())
+                .build()
+            );
+    }
 
-            for (CategoriaEntity categoria : categoriaRepository.findAll()) {
-                BigDecimal total = gastoRepository.findByFechaBetween(fechaDesde, fechaHasta)
-                        .stream()
-                        .filter(gasto -> gasto.getCategoria().getId().equals(categoria.getId()))
-                        .map(gasto -> gasto.getImporte())
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                totalesPorCategoria.put(categoria.getCategoria(), total);
-            }
-            return totalesPorCategoria;
+    public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta, TipoMovimiento tipoMovimiento) {
+        Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
+
+        for (CategoriaEntity categoria : categoriaRepository.findAll()) {
+            BigDecimal total = movimientoRepository
+                .findByTipoMovimientoAndFechaBetween(tipoMovimiento, fechaDesde, fechaHasta)
+                .stream()
+                .filter(m -> m.getCategoria().getId().equals(categoria.getId()))
+                .map(MovimientoEntity::getImporte)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            totalesPorCategoria.put(categoria.getCategoria(), total);
         }
+        return totalesPorCategoria;
+    }
 
-        public Page<MovimientoDto> getGastosFiltradosPorPagina(
-                LocalDate fechaDesde,
-                LocalDate fechaHasta,
-                Long categoriaId,
-                Pageable pageable
-        ) {
-                Page<MovimientoEntity> gastos =
-                        gastoRepository.findByFechaBetweenAndCategoria_Categoria(
-                        fechaDesde, fechaHasta, categoriaId, pageable
-                        );
+    public Page<MovimientoDto> getMovimientosFiltradosPorPagina(
+        LocalDate fechaDesde,
+        LocalDate fechaHasta,
+        Long categoriaId,
+        TipoMovimiento tipoMovimiento,
+        Pageable pageable
+    ) {
+        Page<MovimientoEntity> movimientos =
+            movimientoRepository.findByTipoMovimientoAndFechaBetweenAndCategoria_Id(
+                tipoMovimiento, fechaDesde, fechaHasta, categoriaId, pageable
+            );
 
-                return gastos.map(entity -> MovimientoDto.builder()
-                        .id(entity.getId())
-                        .fecha(entity.getFecha())
-                        .concepto(entity.getConcepto())
-                        .importe(entity.getImporte())
-                        .categoria(CategoriaDto.builder()
-                        .id(entity.getCategoria().getId())
-                        .categoria(entity.getCategoria().getCategoria())
-                        .build())
-                        .build()
-                );
-        }
-
+        return movimientos.map(entity -> MovimientoDto.builder()
+            .id(entity.getId())
+            .fecha(entity.getFecha())
+            .concepto(entity.getConcepto())
+            .importe(entity.getImporte())
+            .categoria(CategoriaDto.builder()
+                .id(entity.getCategoria().getId())
+                .categoria(entity.getCategoria().getCategoria())
+                .build())
+            .build()
+        );
+    }
 }
