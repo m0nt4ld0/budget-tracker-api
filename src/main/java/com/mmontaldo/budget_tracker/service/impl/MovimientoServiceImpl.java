@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.mmontaldo.budget_tracker.config.AuditConfig;
 import com.mmontaldo.budget_tracker.entity.CategoriaEntity;
-import com.mmontaldo.budget_tracker.entity.GastoEntity;
+import com.mmontaldo.budget_tracker.entity.MovimientoEntity;
 import com.mmontaldo.budget_tracker.exception.CategoriaNotFoundException;
 import com.mmontaldo.budget_tracker.exception.DatabaseConnectionException;
 import com.mmontaldo.budget_tracker.exception.FechaInvalidaException;
@@ -20,10 +20,10 @@ import com.mmontaldo.budget_tracker.exception.GastoFechaFuturaException;
 import com.mmontaldo.budget_tracker.exception.GastoImporteNegativoException;
 import com.mmontaldo.budget_tracker.exception.RequestBodyInvalidException;
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
-import com.mmontaldo.budget_tracker.model.dto.GastoDto;
+import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
-import com.mmontaldo.budget_tracker.repository.GastoRepository;
-import com.mmontaldo.budget_tracker.service.GastoService;
+import com.mmontaldo.budget_tracker.repository.MovimientoRepository;
+import com.mmontaldo.budget_tracker.service.MovimientoService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,13 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GastoServiceImpl implements GastoService {
+public class MovimientoServiceImpl implements MovimientoService {
 
-        private final GastoRepository gastoRepository;
+        private final MovimientoRepository gastoRepository;
         private final CategoriaRepository categoriaRepository;
         private final AuditConfig auditConfig;
 
-        public GastoDto crearGasto(GastoDto gastoDto) {
+        public MovimientoDto crearGasto(MovimientoDto gastoDto) {
                 
                 if (gastoDto.getFecha().isAfter(LocalDate.now())) {
                         throw new GastoFechaFuturaException("No se puede crear un gasto con fecha futura");
@@ -54,7 +54,7 @@ public class GastoServiceImpl implements GastoService {
 
                 String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : null;
 
-                GastoEntity entity = GastoEntity.builder()
+                MovimientoEntity entity = MovimientoEntity.builder()
                                 .fecha(gastoDto.getFecha())
                                 .concepto(gastoDto.getConcepto())
                                 .importe(gastoDto.getImporte())
@@ -65,8 +65,8 @@ public class GastoServiceImpl implements GastoService {
                                 .build();
 
                 try {
-                        GastoEntity guardado = gastoRepository.save(entity);
-                        return GastoDto.builder()
+                        MovimientoEntity guardado = gastoRepository.save(entity);
+                        return MovimientoDto.builder()
                                         .id(guardado.getId())
                                         .fecha(guardado.getFecha())
                                         .concepto(guardado.getConcepto())
@@ -81,7 +81,7 @@ public class GastoServiceImpl implements GastoService {
                 }
         }
 
-        public Page<GastoDto> getGastos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable) {
+        public Page<MovimientoDto> getGastos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable) {
                 if (fechaDesde == null)
                         fechaDesde = LocalDate.of(1900, 1, 1);
                 if (fechaHasta == null)
@@ -91,7 +91,7 @@ public class GastoServiceImpl implements GastoService {
                 }
 
                 return gastoRepository.findByFechaBetween(fechaDesde, fechaHasta, pageable)
-                        .map(entity -> GastoDto.builder()
+                        .map(entity -> MovimientoDto.builder()
                                 .id(entity.getId())
                                 .fecha(entity.getFecha())
                                 .concepto(entity.getConcepto())
@@ -118,18 +118,18 @@ public class GastoServiceImpl implements GastoService {
             return totalesPorCategoria;
         }
 
-        public Page<GastoDto> getGastosFiltradosPorPagina(
+        public Page<MovimientoDto> getGastosFiltradosPorPagina(
                 LocalDate fechaDesde,
                 LocalDate fechaHasta,
                 Long categoriaId,
                 Pageable pageable
         ) {
-                Page<GastoEntity> gastos =
+                Page<MovimientoEntity> gastos =
                         gastoRepository.findByFechaBetweenAndCategoria_Categoria(
                         fechaDesde, fechaHasta, categoriaId, pageable
                         );
 
-                return gastos.map(entity -> GastoDto.builder()
+                return gastos.map(entity -> MovimientoDto.builder()
                         .id(entity.getId())
                         .fecha(entity.getFecha())
                         .concepto(entity.getConcepto())

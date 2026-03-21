@@ -8,13 +8,13 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "gastos")
+@Table(name = "movimientos")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GastoEntity {
+public class MovimientoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

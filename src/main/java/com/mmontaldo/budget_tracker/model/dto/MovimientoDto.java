@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GastoDto {
+public class MovimientoDto {
     private Long id;
     private LocalDate fecha;
     private CategoriaDto categoria;

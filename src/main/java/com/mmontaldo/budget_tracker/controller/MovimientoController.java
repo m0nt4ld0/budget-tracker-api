@@ -15,35 +15,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mmontaldo.budget_tracker.model.dto.GastoDto;
-import com.mmontaldo.budget_tracker.service.impl.GastoServiceImpl;
+import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
+import com.mmontaldo.budget_tracker.service.impl.MovimientoServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/gastos")
-public class GastoController {
+public class MovimientoController {
 
-    private final GastoServiceImpl gastoService;
+    private final MovimientoServiceImpl movimientoService;
 
     @GetMapping("/")
-    public Page<GastoDto> getGastosPorPagina(
+    public Page<MovimientoDto> getGastosPorPagina(
             @RequestParam(required = false) LocalDate fechaDesde,
             @RequestParam(required = false) LocalDate fechaHasta,
             @PageableDefault(sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        return gastoService.getGastos(fechaDesde, fechaHasta, pageable);
+        return movimientoService.getGastos(fechaDesde, fechaHasta, pageable);
     }
 
     @GetMapping("/filtro")
-    public Page<GastoDto> getGastosFiltradosPorPagina(
+    public Page<MovimientoDto> getGastosFiltradosPorPagina(
             @RequestParam(required = false) LocalDate fechaDesde,
             @RequestParam(required = false) LocalDate fechaHasta,
             @RequestParam(required = false) Long categoriaId,
             @PageableDefault(sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        return gastoService.getGastosFiltradosPorPagina(fechaDesde, fechaHasta, categoriaId, pageable);
+        return movimientoService.getGastosFiltradosPorPagina(fechaDesde, fechaHasta, categoriaId, pageable);
     }
 
     @GetMapping("/por-categoria")
@@ -51,12 +51,12 @@ public class GastoController {
             @RequestParam(required = true) LocalDate fechaDesde,
             @RequestParam(required = true) LocalDate fechaHasta
     ) {
-        return gastoService.getTotalesPorCategoria(fechaDesde, fechaHasta);
+        return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta);
     }
 
     @PostMapping("/crear")
-    public GastoDto crearGasto(@RequestBody GastoDto gastoDto) {
-        return gastoService.crearGasto(gastoDto);
+    public MovimientoDto crearGasto(@RequestBody MovimientoDto gastoDto) {
+        return movimientoService.crearGasto(gastoDto);
     }
 }
 
