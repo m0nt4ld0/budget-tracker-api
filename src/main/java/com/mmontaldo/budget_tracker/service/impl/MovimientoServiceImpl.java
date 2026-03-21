@@ -115,7 +115,6 @@ public class MovimientoServiceImpl implements MovimientoService {
     public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta, TipoMovimiento tipoMovimiento) {
         Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
 
-        // ✅ Solo categorías del tipo correcto
         List<CategoriaEntity> categorias = categoriaRepository.findByTipoMovimiento(tipoMovimiento);
 
         for (CategoriaEntity categoria : categorias) {
