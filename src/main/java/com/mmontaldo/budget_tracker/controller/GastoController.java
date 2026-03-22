@@ -51,7 +51,8 @@ public class GastoController {
     public Map<String, BigDecimal> getTotalesPorCategoria(
             @RequestParam(required = true) LocalDate fechaDesde,
             @RequestParam(required = true) LocalDate fechaHasta
-    ) {
+    ) 
+    {
         return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta, TipoMovimiento.EGRESO);
     }
 

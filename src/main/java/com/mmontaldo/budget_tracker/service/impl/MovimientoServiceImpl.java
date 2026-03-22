@@ -14,17 +14,21 @@ import org.springframework.stereotype.Service;
 import com.mmontaldo.budget_tracker.config.AuditConfig;
 import com.mmontaldo.budget_tracker.entity.CategoriaEntity;
 import com.mmontaldo.budget_tracker.entity.MovimientoEntity;
+import com.mmontaldo.budget_tracker.entity.MonedaEntity;
 import com.mmontaldo.budget_tracker.exception.CategoriaNotFoundException;
 import com.mmontaldo.budget_tracker.exception.DatabaseConnectionException;
 import com.mmontaldo.budget_tracker.exception.FechaInvalidaException;
 import com.mmontaldo.budget_tracker.exception.GastoFechaFuturaException;
 import com.mmontaldo.budget_tracker.exception.GastoImporteNegativoException;
+import com.mmontaldo.budget_tracker.exception.MonedaNotFoundException;
 import com.mmontaldo.budget_tracker.exception.RequestBodyInvalidException;
 import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
+import com.mmontaldo.budget_tracker.model.dto.MonedaDto;
 import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
 import com.mmontaldo.budget_tracker.repository.MovimientoRepository;
+import com.mmontaldo.budget_tracker.repository.MonedaRepository;
 import com.mmontaldo.budget_tracker.service.MovimientoService;
 
 import jakarta.transaction.Transactional;
@@ -38,12 +42,21 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     private final MovimientoRepository movimientoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final MonedaRepository monedaRepository;
     private final AuditConfig auditConfig;
 
     @Transactional
     public MovimientoDto crearMovimiento(MovimientoDto movimientoDto) {
 
-        movimientoDto.setTipoMovimiento(TipoMovimiento.EGRESO.name());
+        // ToDo: Remover esto cuando se implemente en el frontend la seleccion de moneda
+        MonedaDto ars = new MonedaDto();
+        ars.setCodMoneda("ARS");
+        //ars.setDescMoneda("Peso Argentino");
+        movimientoDto.setMoneda(ars);
+        // ToDo: Validar que la moneda sea obligatoria cuando se implemente el frontend
+        /*if (monedaDto == null || monedaDto.getCodMoneda() == null) {
+            throw new RequestBodyInvalidException("La moneda es obligatoria");
+        }*/
 
         if (movimientoDto.getFecha().isAfter(LocalDate.now())) {
             throw new GastoFechaFuturaException("No se puede crear un movimiento con fecha futura");
@@ -58,6 +71,9 @@ public class MovimientoServiceImpl implements MovimientoService {
         CategoriaEntity categoria = categoriaRepository.findById(movimientoDto.getCategoria().getId())
             .orElseThrow(() -> new CategoriaNotFoundException("Categoría no encontrada"));
 
+        MonedaEntity moneda = monedaRepository.findByCodMoneda(movimientoDto.getMoneda().getCodMoneda())
+            .orElseThrow(() -> new MonedaNotFoundException("Moneda no encontrada"));
+
         String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : null;
 
         MovimientoEntity entity = MovimientoEntity.builder()
@@ -65,7 +81,8 @@ public class MovimientoServiceImpl implements MovimientoService {
             .concepto(movimientoDto.getConcepto())
             .importe(movimientoDto.getImporte())
             .categoria(categoria)
-            .tipoMovimiento(TipoMovimiento.EGRESO)
+            .moneda(moneda)
+            .tipoMovimiento(TipoMovimiento.valueOf(movimientoDto.getTipoMovimiento()))
             .activo(true)
             .audTsIns(OffsetDateTime.now())
             .audTsInsUser(auditUser)
@@ -104,6 +121,11 @@ public class MovimientoServiceImpl implements MovimientoService {
                 .fecha(entity.getFecha())
                 .concepto(entity.getConcepto())
                 .importe(entity.getImporte())
+                .moneda(MonedaDto.builder()
+                    .id(entity.getMoneda().getIdMoneda())
+                    .codMoneda(entity.getMoneda().getCodMoneda())
+                    .descMoneda(entity.getMoneda().getDescMoneda())
+                    .build())
                 .categoria(CategoriaDto.builder()
                     .id(entity.getCategoria().getId())
                     .categoria(entity.getCategoria().getCategoria())
@@ -146,6 +168,11 @@ public class MovimientoServiceImpl implements MovimientoService {
             .fecha(entity.getFecha())
             .concepto(entity.getConcepto())
             .importe(entity.getImporte())
+            .moneda(MonedaDto.builder()
+                .id(entity.getMoneda().getIdMoneda())
+                .codMoneda(entity.getMoneda().getCodMoneda())
+                .descMoneda(entity.getMoneda().getDescMoneda())
+                .build())
             .categoria(CategoriaDto.builder()
                 .id(entity.getCategoria().getId())
                 .categoria(entity.getCategoria().getCategoria())
