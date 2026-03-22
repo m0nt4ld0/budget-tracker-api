@@ -118,5 +118,5 @@ INSERT INTO usuarios (
     'mmontaldo',
     '/assets/images/usuarios/mmontaldo.png',
     TRUE,
-    'system'
+    'budget_tracker_api'
 );

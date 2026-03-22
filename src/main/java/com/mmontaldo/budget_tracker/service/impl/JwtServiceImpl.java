@@ -2,6 +2,7 @@ package com.mmontaldo.budget_tracker.service.impl;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.Key;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.mmontaldo.budget_tracker.service.JwtService;
 
 @Service
+@Slf4j
 public class JwtServiceImpl implements JwtService {
 
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
