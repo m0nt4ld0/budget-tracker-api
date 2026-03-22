@@ -79,4 +79,29 @@ public class UsuarioServiceImpl implements UsuarioService {
             .email(usuario.getEmail())
             .build();
     }
+
+    public UsuarioDto updateUsuario(UsuarioDto usuarioDto) throws UsuarioNoAutorizadoException {
+        UsuarioEntity usuario = usuarioRepository.findById(usuarioDto.getId())
+            .orElseThrow(() -> new UsuarioNoAutorizadoException("Usuario no encontrado"));
+
+        if (usuarioDto.getNombre() != null)  usuario.setNombre(usuarioDto.getNombre());
+        if (usuarioDto.getImagenUrl() != null) usuario.setImagenUrl(usuarioDto.getImagenUrl());
+
+        // ToDo: Cuando implemente envio de email de confirmacion, hacer otro endpoint para el cambio del correo
+        if (usuarioDto.getEmail() != null) usuario.setEmail(usuarioDto.getEmail());
+
+        usuario.setAudTsUpd(OffsetDateTime.now());
+        usuario.setAudTsUpdUser(auditConfig.getDefaultUser());
+
+        usuarioRepository.save(usuario);
+
+        return UsuarioDto.builder()
+            .id(usuario.getId())
+            .usuario(usuario.getUsuario())
+            .nombre(usuario.getNombre())
+            .imagenUrl(usuario.getImagenUrl())
+            .activo(usuario.getActivo())
+            .email(usuario.getEmail())
+            .build();
+    }
 }

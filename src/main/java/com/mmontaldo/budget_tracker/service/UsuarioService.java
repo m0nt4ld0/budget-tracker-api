@@ -8,4 +8,5 @@ import com.mmontaldo.budget_tracker.model.response.AuthResponseDto;
 public interface UsuarioService {
     public AuthResponseDto getLogin(AuthRequestDto authRequestDto) throws UsuarioNoAutorizadoException;
     public UsuarioDto createUsuario(UsuarioDto usuarioDto);
+    public UsuarioDto updateUsuario(UsuarioDto usuarioDto);
 }
