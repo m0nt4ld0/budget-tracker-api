@@ -10,4 +10,6 @@ import com.mmontaldo.budget_tracker.entity.UsuarioEntity;
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
     Optional<UsuarioEntity> findByUsuarioAndActivoTrue(String usuario);
     List<UsuarioEntity> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre);
+    Optional<UsuarioEntity> findByUsuario(String usuario);
+    Optional<UsuarioEntity> findByEmail(String email);
 }

@@ -15,6 +15,7 @@ import com.mmontaldo.budget_tracker.config.AuditConfig;
 import com.mmontaldo.budget_tracker.entity.CategoriaEntity;
 import com.mmontaldo.budget_tracker.entity.MovimientoEntity;
 import com.mmontaldo.budget_tracker.entity.MonedaEntity;
+import com.mmontaldo.budget_tracker.entity.UsuarioEntity;
 import com.mmontaldo.budget_tracker.exception.CategoriaNotFoundException;
 import com.mmontaldo.budget_tracker.exception.DatabaseConnectionException;
 import com.mmontaldo.budget_tracker.exception.FechaInvalidaException;
@@ -22,13 +23,16 @@ import com.mmontaldo.budget_tracker.exception.GastoFechaFuturaException;
 import com.mmontaldo.budget_tracker.exception.GastoImporteNegativoException;
 import com.mmontaldo.budget_tracker.exception.MonedaNotFoundException;
 import com.mmontaldo.budget_tracker.exception.RequestBodyInvalidException;
+import com.mmontaldo.budget_tracker.exception.UsuarioNoAutorizadoException;
 import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.model.dto.MonedaDto;
 import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
+import com.mmontaldo.budget_tracker.model.dto.UsuarioDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
 import com.mmontaldo.budget_tracker.repository.MovimientoRepository;
 import com.mmontaldo.budget_tracker.repository.MonedaRepository;
+import com.mmontaldo.budget_tracker.repository.UsuarioRepository;
 import com.mmontaldo.budget_tracker.service.MovimientoService;
 
 import jakarta.transaction.Transactional;
@@ -43,21 +47,14 @@ public class MovimientoServiceImpl implements MovimientoService {
     private final MovimientoRepository movimientoRepository;
     private final CategoriaRepository categoriaRepository;
     private final MonedaRepository monedaRepository;
+    private final UsuarioRepository usuarioRepository;
     private final AuditConfig auditConfig;
 
     @Transactional
     public MovimientoDto crearMovimiento(MovimientoDto movimientoDto) {
-
-        // ToDo: Remover esto cuando se implemente en el frontend la seleccion de moneda
-        MonedaDto ars = new MonedaDto();
-        ars.setCodMoneda("ARS");
-        //ars.setDescMoneda("Peso Argentino");
-        movimientoDto.setMoneda(ars);
-        // ToDo: Validar que la moneda sea obligatoria cuando se implemente el frontend
-        /*if (monedaDto == null || monedaDto.getCodMoneda() == null) {
+        if (movimientoDto.getMoneda() == null || movimientoDto.getMoneda().getCodMoneda() == null) {
             throw new RequestBodyInvalidException("La moneda es obligatoria");
-        }*/
-
+        }
         if (movimientoDto.getFecha().isAfter(LocalDate.now())) {
             throw new GastoFechaFuturaException("No se puede crear un movimiento con fecha futura");
         }
@@ -67,12 +64,18 @@ public class MovimientoServiceImpl implements MovimientoService {
         if (movimientoDto.getCategoria() == null || movimientoDto.getCategoria().getId() == null) {
             throw new RequestBodyInvalidException("La categoría es obligatoria");
         }
+        if (movimientoDto.getUsuario() == null || movimientoDto.getUsuario().getId() == null) {
+            throw new RequestBodyInvalidException("El usuario es obligatorio");
+        }
 
         CategoriaEntity categoria = categoriaRepository.findById(movimientoDto.getCategoria().getId())
             .orElseThrow(() -> new CategoriaNotFoundException("Categoría no encontrada"));
 
         MonedaEntity moneda = monedaRepository.findByCodMoneda(movimientoDto.getMoneda().getCodMoneda())
             .orElseThrow(() -> new MonedaNotFoundException("Moneda no encontrada"));
+
+        UsuarioEntity usuario = usuarioRepository.findById(movimientoDto.getUsuario().getId())
+            .orElseThrow(() -> new UsuarioNoAutorizadoException("Usuario no encontrado"));
 
         String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : null;
 
@@ -82,6 +85,7 @@ public class MovimientoServiceImpl implements MovimientoService {
             .importe(movimientoDto.getImporte())
             .categoria(categoria)
             .moneda(moneda)
+            .usuario(usuario)
             .tipoMovimiento(TipoMovimiento.valueOf(movimientoDto.getTipoMovimiento()))
             .activo(true)
             .audTsIns(OffsetDateTime.now())
@@ -90,58 +94,45 @@ public class MovimientoServiceImpl implements MovimientoService {
 
         try {
             MovimientoEntity guardado = movimientoRepository.save(entity);
-            return MovimientoDto.builder()
-                .id(guardado.getId())
-                .fecha(guardado.getFecha())
-                .concepto(guardado.getConcepto())
-                .importe(guardado.getImporte())
-                .categoria(CategoriaDto.builder()
-                    .id(categoria.getId())
-                    .categoria(categoria.getCategoria())
-                    .build())
-                .build();
+            return toDto(guardado);
         } catch (Exception e) {
             throw new DatabaseConnectionException("Error al guardar el movimiento en la base de datos");
         }
     }
 
-    public Page<MovimientoDto> getMovimientos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable, TipoMovimiento tipoMovimiento) {
-        if (fechaDesde == null)
-            fechaDesde = LocalDate.of(1900, 1, 1);
-        if (fechaHasta == null)
-            fechaHasta = LocalDate.now();
+    public Page<MovimientoDto> getMovimientos(
+        LocalDate fechaDesde,
+        LocalDate fechaHasta,
+        TipoMovimiento tipoMovimiento,
+        Long usuarioId,
+        Pageable pageable)
+    {
+        if (fechaDesde == null) fechaDesde = LocalDate.of(1900, 1, 1);
+        if (fechaHasta == null) fechaHasta = LocalDate.now();
         if (fechaDesde.isAfter(fechaHasta)) {
             throw new FechaInvalidaException("La fechaDesde no puede ser mayor a la fechaHasta");
         }
 
         return movimientoRepository
-            .findByTipoMovimientoAndFechaBetween(tipoMovimiento, fechaDesde, fechaHasta, pageable)
-            .map(entity -> MovimientoDto.builder()
-                .id(entity.getId())
-                .fecha(entity.getFecha())
-                .concepto(entity.getConcepto())
-                .importe(entity.getImporte())
-                .moneda(MonedaDto.builder()
-                    .id(entity.getMoneda().getIdMoneda())
-                    .codMoneda(entity.getMoneda().getCodMoneda())
-                    .descMoneda(entity.getMoneda().getDescMoneda())
-                    .build())
-                .categoria(CategoriaDto.builder()
-                    .id(entity.getCategoria().getId())
-                    .categoria(entity.getCategoria().getCategoria())
-                    .build())
-                .build()
-            );
+            .findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
+                tipoMovimiento, fechaDesde, fechaHasta, usuarioId, pageable)
+            .map(this::toDto);
     }
 
-    public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta, TipoMovimiento tipoMovimiento) {
+    public Map<String, BigDecimal> getTotalesPorCategoria(
+        LocalDate fechaDesde,
+        LocalDate fechaHasta,
+        TipoMovimiento tipoMovimiento,
+        Long usuarioId)
+    {
         Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
 
         List<CategoriaEntity> categorias = categoriaRepository.findByTipoMovimiento(tipoMovimiento);
 
         for (CategoriaEntity categoria : categorias) {
             BigDecimal total = movimientoRepository
-                .findByTipoMovimientoAndFechaBetween(tipoMovimiento, fechaDesde, fechaHasta)
+                .findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
+                    tipoMovimiento, fechaDesde, fechaHasta, usuarioId)
                 .stream()
                 .filter(m -> m.getCategoria().getId().equals(categoria.getId()))
                 .map(MovimientoEntity::getImporte)
@@ -156,14 +147,17 @@ public class MovimientoServiceImpl implements MovimientoService {
         LocalDate fechaHasta,
         Long categoriaId,
         TipoMovimiento tipoMovimiento,
-        Pageable pageable
-    ) {
-        Page<MovimientoEntity> movimientos =
-            movimientoRepository.findByTipoMovimientoAndFechaBetweenAndCategoria_Id(
-                tipoMovimiento, fechaDesde, fechaHasta, categoriaId, pageable
-            );
+        Long usuarioId,
+        Pageable pageable)
+    {
+        return movimientoRepository
+            .findByTipoMovimientoAndFechaBetweenAndCategoria_IdAndUsuario_Id(
+                tipoMovimiento, fechaDesde, fechaHasta, categoriaId, usuarioId, pageable)
+            .map(this::toDto);
+    }
 
-        return movimientos.map(entity -> MovimientoDto.builder()
+    private MovimientoDto toDto(MovimientoEntity entity) {
+        return MovimientoDto.builder()
             .id(entity.getId())
             .fecha(entity.getFecha())
             .concepto(entity.getConcepto())
@@ -177,7 +171,11 @@ public class MovimientoServiceImpl implements MovimientoService {
                 .id(entity.getCategoria().getId())
                 .categoria(entity.getCategoria().getCategoria())
                 .build())
-            .build()
-        );
+            .usuario(UsuarioDto.builder()
+                .id(entity.getUsuario().getId())
+                .nombre(entity.getUsuario().getNombre())
+                .usuario(entity.getUsuario().getUsuario())
+                .build())
+            .build();
     }
 }

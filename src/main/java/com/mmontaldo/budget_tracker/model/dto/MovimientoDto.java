@@ -17,6 +17,7 @@ public class MovimientoDto {
     private LocalDate fecha;
     private CategoriaDto categoria;
     private MonedaDto moneda;
+    private UsuarioDto usuario;
     private String concepto;
     private BigDecimal importe;
     private String tipoMovimiento;

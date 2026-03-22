@@ -11,14 +11,29 @@ import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
 
 public interface MovimientoService {
-    public MovimientoDto crearMovimiento(MovimientoDto movimientoDto);
-    public Page<MovimientoDto> getMovimientos(LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable, TipoMovimiento tipoMovimiento);
-    public Map<String, BigDecimal> getTotalesPorCategoria(LocalDate fechaDesde, LocalDate fechaHasta, TipoMovimiento tipoMovimiento);
-    public Page<MovimientoDto> getMovimientosFiltradosPorPagina(
-                LocalDate fechaDesde,
-                LocalDate fechaHasta,
-                Long categoriaId,
-                TipoMovimiento tipoMovimiento,
-                Pageable pageable
-        ) ;
+    MovimientoDto crearMovimiento(MovimientoDto movimientoDto);
+    
+    Page<MovimientoDto> getMovimientos(
+        LocalDate fechaDesde, 
+        LocalDate fechaHasta, 
+        TipoMovimiento tipoMovimiento, 
+        Long usuarioId,
+        Pageable pageable
+    );
+    
+    Map<String, BigDecimal> getTotalesPorCategoria(
+        LocalDate fechaDesde, 
+        LocalDate fechaHasta, 
+        TipoMovimiento tipoMovimiento, 
+        Long usuarioId
+    );
+    
+    Page<MovimientoDto> getMovimientosFiltradosPorPagina(
+        LocalDate fechaDesde,
+        LocalDate fechaHasta,
+        Long categoriaId,
+        TipoMovimiento tipoMovimiento,
+        Long usuarioId,
+        Pageable pageable
+    );
 }

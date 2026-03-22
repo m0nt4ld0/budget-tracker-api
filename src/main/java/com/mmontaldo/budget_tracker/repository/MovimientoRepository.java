@@ -24,4 +24,13 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
 
     Page<MovimientoEntity> findByCategoriaId(Long categoriaId, Pageable pageable);
 
+    Page<MovimientoEntity> findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
+        TipoMovimiento tipo, LocalDate fechaDesde, LocalDate fechaHasta, Long usuarioId, Pageable pageable);
+    
+    List<MovimientoEntity> findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
+        TipoMovimiento tipo, LocalDate fechaDesde, LocalDate fechaHasta, Long usuarioId);
+
+    Page<MovimientoEntity> findByTipoMovimientoAndFechaBetweenAndCategoria_IdAndUsuario_Id(
+        TipoMovimiento tipo, LocalDate fechaDesde, LocalDate fechaHasta, Long categoriaId, Long usuarioId, Pageable pageable);
+
 }

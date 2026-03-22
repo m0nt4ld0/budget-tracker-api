@@ -28,6 +28,9 @@ public class UsuarioEntity {
     @Column(nullable = false, length = 100)
     private String usuario;
 
+    @Column(nullable = false, length = 255)
+    private String email;
+
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;
 

@@ -47,6 +47,10 @@ public class MovimientoEntity {
     @JoinColumn(name = "moneda_id", nullable = false)
     private MonedaEntity moneda;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private UsuarioEntity usuario;
+
     @Column(name = "aud_ts_ins", nullable = false)
     private OffsetDateTime audTsIns;
 
