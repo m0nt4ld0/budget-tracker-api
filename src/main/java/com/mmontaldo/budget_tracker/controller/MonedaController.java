@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.model.dto.MonedaDto;
 import com.mmontaldo.budget_tracker.service.impl.MonedaServiceImpl;
 
