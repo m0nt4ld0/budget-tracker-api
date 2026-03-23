@@ -17,4 +17,5 @@ public class CategoriaDto {
     private String icono;
     private Boolean activo;
     private String tipoMovimiento;
+    private Long usuarioId;
 }

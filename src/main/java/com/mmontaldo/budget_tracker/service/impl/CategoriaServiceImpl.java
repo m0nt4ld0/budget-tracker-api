@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.mmontaldo.budget_tracker.config.AuditConfig;
 import com.mmontaldo.budget_tracker.entity.CategoriaEntity;
+import com.mmontaldo.budget_tracker.exception.CategoriaNotFoundException;
 import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
@@ -125,6 +126,32 @@ public class CategoriaServiceImpl implements CategoriaService {
             .categoria(guardada.getCategoria())
             .icono(guardada.getIcono())
             .build();
+    }
+
+    public CategoriaDto editarCategoria(Long id, CategoriaDto dto) throws CategoriaNotFoundException{
+        log.info("Editando categoria {id={}}", id);
+        CategoriaEntity categoriaEntity = categoriaRepository.findById(id)
+                .orElseThrow(() -> new CategoriaNotFoundException("Categoria no encontrada"));
+        categoriaEntity.setCategoria(dto.getCategoria());
+        categoriaEntity.setIcono(dto.getIcono());
+        CategoriaEntity guardada = categoriaRepository.save(categoriaEntity);
+        return CategoriaDto.builder()
+                .id(guardada.getId())
+                .categoria(guardada.getCategoria())
+                .icono(guardada.getIcono())
+                .build();
+    }
+
+    public void eliminarCategoria(Long id) throws CategoriaNotFoundException {
+        log.info("Eliminando categoria {id={}}", id);
+        
+        CategoriaEntity categoriaEntity = categoriaRepository.findById(id)
+                .orElseThrow(() -> new CategoriaNotFoundException("Categoria no encontrada"));
+        
+        // Baja lógica
+        categoriaEntity.setActivo(false);
+
+        categoriaRepository.save(categoriaEntity);
     }
 }
 

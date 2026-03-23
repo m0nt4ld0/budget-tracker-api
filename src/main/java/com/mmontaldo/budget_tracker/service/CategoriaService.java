@@ -17,4 +17,8 @@ public interface CategoriaService {
     public CategoriaDto crearCategoriaGasto(CategoriaDto dto);
 
     public List<CategoriaDto> getCategoriasMovimientos();
+
+    public CategoriaDto editarCategoria(Long id, CategoriaDto dto);
+
+    public void eliminarCategoria(Long id);
 }

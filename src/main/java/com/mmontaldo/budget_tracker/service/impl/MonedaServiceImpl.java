@@ -2,11 +2,13 @@ package com.mmontaldo.budget_tracker.service.impl;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.mmontaldo.budget_tracker.config.AuditConfig;
 import com.mmontaldo.budget_tracker.entity.MonedaEntity;
+import com.mmontaldo.budget_tracker.exception.MonedaNotFoundException;
 import com.mmontaldo.budget_tracker.model.dto.MonedaDto;
 import com.mmontaldo.budget_tracker.repository.MonedaRepository;
 import com.mmontaldo.budget_tracker.service.MonedaService;
@@ -24,6 +26,7 @@ public class MonedaServiceImpl implements MonedaService {
 
     public List<MonedaDto> getMonedas() {
         log.info("Obteniendo monedas");
+
         return monedaRepository.findAll().stream()
                 .map(entity -> MonedaDto.builder()
                         .id(entity.getIdMoneda())
@@ -34,7 +37,7 @@ public class MonedaServiceImpl implements MonedaService {
     }
 
     public MonedaDto crearMoneda(MonedaDto dto) {
-        log.info("Creando moneda: {}", dto.getCodMoneda());
+        log.info("Creando moneda {codMoneda={}}", dto.getCodMoneda());
 
         String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : "budget_tracker_api";
 
@@ -53,4 +56,23 @@ public class MonedaServiceImpl implements MonedaService {
                 .descMoneda(guardada.getDescMoneda())
                 .build();
     }
+
+    public MonedaDto editarMoneda(Long id, MonedaDto dto) {
+        log.info("Editando moneda {id={}}", id);
+
+        Optional<MonedaEntity> entityOpt = monedaRepository.findById(id);
+        if(entityOpt.isEmpty()) {
+            throw new MonedaNotFoundException("Moneda no encontrada");
+        }
+        MonedaEntity entity = entityOpt.get();
+        entity.setCodMoneda(dto.getCodMoneda());
+        entity.setDescMoneda(dto.getDescMoneda());
+        MonedaEntity guardada = monedaRepository.save(entity);
+        return MonedaDto.builder()
+                .id(guardada.getIdMoneda())
+                .codMoneda(guardada.getCodMoneda())
+                .descMoneda(guardada.getDescMoneda())
+                .build();
+    }
+
 }

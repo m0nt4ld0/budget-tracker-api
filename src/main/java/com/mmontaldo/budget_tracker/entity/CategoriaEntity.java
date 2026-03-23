@@ -42,6 +42,10 @@ public class CategoriaEntity {
     @Builder.Default
     private Boolean activo = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private UsuarioEntity usuario;
+
     @Column(name = "aud_ts_ins", nullable = false)
     private OffsetDateTime audTsIns;
 
