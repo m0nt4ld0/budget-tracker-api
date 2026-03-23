@@ -1,7 +1,9 @@
 package com.mmontaldo.budget_tracker.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class LoginController {
     private final UsuarioService usuarioService;
     
     @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
     public AuthResponseDto getLogin(@RequestBody AuthRequestDto authRequestDto) {
         return usuarioService.getLogin(authRequestDto);
     }

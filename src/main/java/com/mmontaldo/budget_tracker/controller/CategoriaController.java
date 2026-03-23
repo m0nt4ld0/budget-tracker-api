@@ -23,6 +23,7 @@ public class CategoriaController {
     private final CategoriaServiceImpl categoriaService;
     
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<CategoriaDto> getCategoriasMovimientos() {
         return categoriaService.getCategoriasMovimientos();
     }

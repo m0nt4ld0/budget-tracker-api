@@ -37,6 +37,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         return new AuthResponseDto(
             usuario.getId(),
             usuario.getUsuario(),
+            usuario.getEmail(),
             jwtService.generateToken(usuario.getUsuario()),
             usuario.getNombre(),
             usuario.getImagenUrl(),
