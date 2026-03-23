@@ -34,31 +34,28 @@ public class GastoController {
     public Page<MovimientoDto> getGastosPorPagina(
             @RequestParam(required = false) LocalDate fechaDesde,
             @RequestParam(required = false) LocalDate fechaHasta,
-            @RequestParam(required = true) Long usuarioId,
             @PageableDefault(sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        return movimientoService.getMovimientos(fechaDesde, fechaHasta, TipoMovimiento.EGRESO, usuarioId, pageable);
+        return movimientoService.getMovimientos(fechaDesde, fechaHasta, TipoMovimiento.EGRESO, pageable);
     }
 
     @GetMapping("/filtro")
     public Page<MovimientoDto> getGastosFiltradosPorPagina(
             @RequestParam(required = false) LocalDate fechaDesde,
             @RequestParam(required = false) LocalDate fechaHasta,
-            @RequestParam(required = true) Long usuarioId,
             @RequestParam(required = false) Long categoriaId,
             @PageableDefault(sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable)
     {
-        return movimientoService.getMovimientosFiltradosPorPagina(fechaDesde, fechaHasta, categoriaId, TipoMovimiento.EGRESO, usuarioId, pageable);
+        return movimientoService.getMovimientosFiltradosPorPagina(fechaDesde, fechaHasta, categoriaId, TipoMovimiento.EGRESO, pageable);
     }
 
     @GetMapping("/por-categoria")
     public Map<String, BigDecimal> getTotalesPorCategoria(
             @RequestParam(required = true) LocalDate fechaDesde,
-            @RequestParam(required = true) LocalDate fechaHasta,
-            @RequestParam(required = true) Long usuarioId
+            @RequestParam(required = true) LocalDate fechaHasta
     ) 
     {
-        return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta, TipoMovimiento.EGRESO, usuarioId);
+        return movimientoService.getTotalesPorCategoria(fechaDesde, fechaHasta, TipoMovimiento.EGRESO);
     }
 
     @PostMapping("/crear")

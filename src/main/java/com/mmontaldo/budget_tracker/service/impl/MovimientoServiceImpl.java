@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.mmontaldo.budget_tracker.config.AuditConfig;
@@ -17,7 +18,6 @@ import com.mmontaldo.budget_tracker.entity.MovimientoEntity;
 import com.mmontaldo.budget_tracker.entity.MonedaEntity;
 import com.mmontaldo.budget_tracker.entity.UsuarioEntity;
 import com.mmontaldo.budget_tracker.exception.CategoriaNotFoundException;
-import com.mmontaldo.budget_tracker.exception.DatabaseConnectionException;
 import com.mmontaldo.budget_tracker.exception.FechaInvalidaException;
 import com.mmontaldo.budget_tracker.exception.GastoFechaFuturaException;
 import com.mmontaldo.budget_tracker.exception.GastoImporteNegativoException;
@@ -28,7 +28,6 @@ import com.mmontaldo.budget_tracker.model.TipoMovimiento;
 import com.mmontaldo.budget_tracker.model.dto.CategoriaDto;
 import com.mmontaldo.budget_tracker.model.dto.MonedaDto;
 import com.mmontaldo.budget_tracker.model.dto.MovimientoDto;
-import com.mmontaldo.budget_tracker.model.dto.UsuarioDto;
 import com.mmontaldo.budget_tracker.repository.CategoriaRepository;
 import com.mmontaldo.budget_tracker.repository.MovimientoRepository;
 import com.mmontaldo.budget_tracker.repository.MonedaRepository;
@@ -52,30 +51,30 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     @Transactional
     public MovimientoDto crearMovimiento(MovimientoDto movimientoDto) {
+
         if (movimientoDto.getMoneda() == null || movimientoDto.getMoneda().getCodMoneda() == null) {
             throw new RequestBodyInvalidException("La moneda es obligatoria");
         }
+
         if (movimientoDto.getFecha().isAfter(LocalDate.now())) {
             throw new GastoFechaFuturaException("No se puede crear un movimiento con fecha futura");
         }
+
         if (movimientoDto.getImporte().compareTo(BigDecimal.ZERO) < 0) {
             throw new GastoImporteNegativoException("No se puede crear un movimiento con importe negativo");
         }
+
         if (movimientoDto.getCategoria() == null || movimientoDto.getCategoria().getId() == null) {
             throw new RequestBodyInvalidException("La categoría es obligatoria");
         }
-        if (movimientoDto.getUsuario() == null || movimientoDto.getUsuario().getId() == null) {
-            throw new RequestBodyInvalidException("El usuario es obligatorio");
-        }
+
+        UsuarioEntity usuario = getUsuarioAutenticado();
 
         CategoriaEntity categoria = categoriaRepository.findById(movimientoDto.getCategoria().getId())
             .orElseThrow(() -> new CategoriaNotFoundException("Categoría no encontrada"));
 
         MonedaEntity moneda = monedaRepository.findByCodMoneda(movimientoDto.getMoneda().getCodMoneda())
             .orElseThrow(() -> new MonedaNotFoundException("Moneda no encontrada"));
-
-        UsuarioEntity usuario = usuarioRepository.findById(movimientoDto.getUsuario().getId())
-            .orElseThrow(() -> new UsuarioNoAutorizadoException("Usuario no encontrado"));
 
         String auditUser = auditConfig.getEnabled() ? auditConfig.getDefaultUser() : null;
 
@@ -92,67 +91,80 @@ public class MovimientoServiceImpl implements MovimientoService {
             .audTsInsUser(auditUser)
             .build();
 
-        try {
-            MovimientoEntity guardado = movimientoRepository.save(entity);
-            return toDto(guardado);
-        } catch (Exception e) {
-            throw new DatabaseConnectionException("Error al guardar el movimiento en la base de datos");
-        }
+        return toDto(movimientoRepository.save(entity));
     }
 
     public Page<MovimientoDto> getMovimientos(
-        LocalDate fechaDesde,
-        LocalDate fechaHasta,
-        TipoMovimiento tipoMovimiento,
-        Long usuarioId,
-        Pageable pageable)
+    LocalDate fechaDesde,
+    LocalDate fechaHasta,
+    TipoMovimiento tipoMovimiento,
+    Pageable pageable)
     {
+        UsuarioEntity usuario = getUsuarioAutenticado();
+
         if (fechaDesde == null) fechaDesde = LocalDate.of(1900, 1, 1);
         if (fechaHasta == null) fechaHasta = LocalDate.now();
+
         if (fechaDesde.isAfter(fechaHasta)) {
             throw new FechaInvalidaException("La fechaDesde no puede ser mayor a la fechaHasta");
         }
 
         return movimientoRepository
             .findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
-                tipoMovimiento, fechaDesde, fechaHasta, usuarioId, pageable)
+                tipoMovimiento,
+                fechaDesde,
+                fechaHasta,
+                usuario.getId(),
+                pageable
+            )
             .map(this::toDto);
     }
 
     public Map<String, BigDecimal> getTotalesPorCategoria(
-        LocalDate fechaDesde,
-        LocalDate fechaHasta,
-        TipoMovimiento tipoMovimiento,
-        Long usuarioId)
+    LocalDate fechaDesde,
+    LocalDate fechaHasta,
+    TipoMovimiento tipoMovimiento)
     {
-        Map<String, BigDecimal> totalesPorCategoria = new HashMap<>();
+        UsuarioEntity usuario = getUsuarioAutenticado();
+
+        Map<String, BigDecimal> totales = new HashMap<>();
 
         List<CategoriaEntity> categorias = categoriaRepository.findByTipoMovimiento(tipoMovimiento);
 
+        List<MovimientoEntity> movimientos = movimientoRepository
+            .findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
+                tipoMovimiento, fechaDesde, fechaHasta, usuario.getId());
+
         for (CategoriaEntity categoria : categorias) {
-            BigDecimal total = movimientoRepository
-                .findByTipoMovimientoAndFechaBetweenAndUsuario_Id(
-                    tipoMovimiento, fechaDesde, fechaHasta, usuarioId)
-                .stream()
+            BigDecimal total = movimientos.stream()
                 .filter(m -> m.getCategoria().getId().equals(categoria.getId()))
                 .map(MovimientoEntity::getImporte)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-            totalesPorCategoria.put(categoria.getCategoria(), total);
+
+            totales.put(categoria.getCategoria(), total);
         }
-        return totalesPorCategoria;
+
+        return totales;
     }
 
     public Page<MovimientoDto> getMovimientosFiltradosPorPagina(
-        LocalDate fechaDesde,
-        LocalDate fechaHasta,
-        Long categoriaId,
-        TipoMovimiento tipoMovimiento,
-        Long usuarioId,
-        Pageable pageable)
+    LocalDate fechaDesde,
+    LocalDate fechaHasta,
+    Long categoriaId,
+    TipoMovimiento tipoMovimiento,
+    Pageable pageable)
     {
+        UsuarioEntity usuario = getUsuarioAutenticado();
+
         return movimientoRepository
             .findByTipoMovimientoAndFechaBetweenAndCategoria_IdAndUsuario_Id(
-                tipoMovimiento, fechaDesde, fechaHasta, categoriaId, usuarioId, pageable)
+                tipoMovimiento,
+                fechaDesde,
+                fechaHasta,
+                categoriaId,
+                usuario.getId(),
+                pageable
+            )
             .map(this::toDto);
     }
 
@@ -171,11 +183,17 @@ public class MovimientoServiceImpl implements MovimientoService {
                 .id(entity.getCategoria().getId())
                 .categoria(entity.getCategoria().getCategoria())
                 .build())
-            .usuario(UsuarioDto.builder()
-                .id(entity.getUsuario().getId())
-                .nombre(entity.getUsuario().getNombre())
-                .usuario(entity.getUsuario().getUsuario())
-                .build())
             .build();
+    }
+
+    private UsuarioEntity getUsuarioAutenticado() {
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return usuarioRepository
+                .findByUsuario(username)
+                .orElseThrow(() -> new UsuarioNoAutorizadoException("Usuario no encontrado"));
     }
 }

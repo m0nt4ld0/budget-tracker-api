@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mmontaldo.budget_tracker.model.dto.UsuarioDto;
+import com.mmontaldo.budget_tracker.model.dto.UsuarioUpdateDto;
 import com.mmontaldo.budget_tracker.service.UsuarioService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class UsuarioController {
 
     @PatchMapping("/update")
     @ResponseStatus(HttpStatus.OK)
-    public UsuarioDto updateUsuario(@RequestBody UsuarioDto usuarioDto) {
+    public UsuarioDto updateUsuario(@RequestBody UsuarioUpdateDto usuarioDto) {
         return usuarioService.updateUsuario(usuarioDto);
     }
 }

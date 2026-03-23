@@ -17,15 +17,13 @@ public interface MovimientoService {
         LocalDate fechaDesde, 
         LocalDate fechaHasta, 
         TipoMovimiento tipoMovimiento, 
-        Long usuarioId,
         Pageable pageable
     );
     
     Map<String, BigDecimal> getTotalesPorCategoria(
         LocalDate fechaDesde, 
         LocalDate fechaHasta, 
-        TipoMovimiento tipoMovimiento, 
-        Long usuarioId
+        TipoMovimiento tipoMovimiento
     );
     
     Page<MovimientoDto> getMovimientosFiltradosPorPagina(
@@ -33,7 +31,6 @@ public interface MovimientoService {
         LocalDate fechaHasta,
         Long categoriaId,
         TipoMovimiento tipoMovimiento,
-        Long usuarioId,
         Pageable pageable
     );
 }
