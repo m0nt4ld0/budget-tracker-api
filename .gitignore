@@ -56,3 +56,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Profile Test ###
+src/main/resources/application-test.yml
